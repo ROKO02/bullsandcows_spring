@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <title>숫자 야구 게임</title>
+</head>
+<body>
+<h2>⚾ 숫자 야구 게임</h2>
+<h3>히스토리</h3>
+{{id}}<br>
+{{pw}}
+<ul>
+    {{#history}}
+        <li>{{inputs}} → {{strikeCount}}S {{ballCount}}B</li>
+    {{/history}}
+    {{^history}}
+        <li>아직 기록이 없습니다.</li>
+    {{/history}}
+</ul>
+{{#finished}}
+    <h2>축하합니다 맞추셨습니다!</h2>
+{{/finished}}
+{{#setBase}}
+    <p>{{setBase}}</p>
+{{/setBase}}
+{{#result}}
+    <p>결과: {{strikes}} 스트라이크, {{balls}} 볼</p>
+{{/result}}
+<form action="/play" method="post">
+    <input type="number" name="number1" min="1" max="9">
+    <input type="number" name="number2" min="1" max="9">
+    <input type="number" name="number3" min="1" max="9">
+    <button type="submit">제출</button>
+    <button formaction="/restart" formmethod="get">게임 초기화</button>
+    <button formaction="/logoutuser" formmethod="get">로그아웃</button>
+</form>
+<a type="button">로그아웃</a>
+{{#rankinglist}}
+    <p>ID(순서): {{id}} / 유저ID: {{userID}}/ 시도횟수: {{tryCount}}</p>
+{{/rankinglist}}
+</body>
+</html>
