@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -55,6 +56,7 @@ public class NumberBaseballController {
         HttpSession session = request.getSession();
         session.invalidate();
 
+        numberBaseball.clearGame(); // 로그아웃 시 clear
         return "redirect:/login";
     }
 
@@ -63,19 +65,21 @@ public class NumberBaseballController {
     public String index(Model model,final HttpServletRequest request) {
         // 시작 페이지에서 기존에 넣어줬던 더미 데이터 출력
         List<Ranking> rankingEnitylist = rankingRepository.findAllByOrderByTryCountAsc();
+        List<RankingForm> rankingFormList = new ArrayList<>();
+        int rank = 1;
+        for(Ranking r: rankingEnitylist) {
+            rankingFormList.add(new RankingForm(rank++,r.getUserID(),r.getTryCount()));
+        }
+
         HttpSession session = request.getSession();
-        // user ID/PW 확인
-//        model.addAttribute("id", id);
-//        model.addAttribute("pw", pw);
+
         String id = String.valueOf(session.getAttribute("id"));
         String pw = String.valueOf(session.getAttribute("pw"));
 
-        model.addAttribute("rankinglist",rankingEnitylist);
+        model.addAttribute("rankingList",rankingEnitylist);
+        model.addAttribute("rankingList",rankingFormList);
         model.addAttribute("id", id);
         model.addAttribute("pw", pw);
-        // user ID/PW 확인
-//        model.addAttribute("id", id);
-//        model.addAttribute("pw", pw);
 
         // 새 게임 시작 -> 기본 값 설정
         model.addAttribute("setBase", numberBaseball.getSetBase());
@@ -101,18 +105,11 @@ public class NumberBaseballController {
 
         model.addAttribute("id", id);
         model.addAttribute("pw", pw);
+
+
         // 게임이 끝났는지 체그하는 flag
-       boolean isFinished = numberBaseball.isGameEnd();
-//        // dto가 저장되는지 확인위한 로그
-//        System.out.println(rankingForm.toString());
-//
-//        // dto -> entity
-//        Ranking ranking = rankingForm.toEntity();
-//        System.out.println(ranking.toString());
-//
-//        // entity-> repository
-//        Ranking saved = rankingRepository.save(ranking);
-//        System.out.println(saved.toString());
+        boolean isFinished = numberBaseball.isGameEnd();
+
 
         // dto -> enity-> repository
         if(isFinished) { // 게임이 끝날 경우(정답을 맞춘경우) DB에 저장된다.
@@ -122,20 +119,18 @@ public class NumberBaseballController {
             ranking.setTryCount(numberBaseball.getTryCount());
             rankingRepository.save(ranking);
 
-            // 마찬가지로 게임이 끝난 경우 DB에 저장된 데이터를 가져와 보여 줄 수 있게 한다
-
-            //  Repo에서 entity리스트로 데이터 가져오기
-            List<Ranking> rankingEntityList = rankingRepository.findAllByOrderByTryCountAsc();
-
-            model.addAttribute("rankinglist", rankingEntityList);
             // 게임을 맞춘 경우
             numberBaseball.clearGame(); // 저장 후 게임 초기화
         }
 
-        // 마찬가지로 게임이 끝난 경우 DB에 저장된 데이터를 가져와 보여 줄 수 있게 한다
-        List<Ranking> rankingEntityList = rankingRepository.findAll();
-
-        model.addAttribute("rankingList",rankingEntityList);
+        // 랭킹 리스트 가지오기
+        List<Ranking> rankingEntityList = rankingRepository.findAllByOrderByTryCountAsc();
+        List<RankingForm> rankingFormList = new ArrayList<>();
+        int rank = 1;
+        for(Ranking r: rankingEntityList) {
+            rankingFormList.add(new RankingForm(rank++,r.getUserID(),r.getTryCount()));
+        }
+        model.addAttribute("rankingList",rankingFormList);
 
         // model에 등록하기
         model.addAttribute("setBase", numberBaseball.getSetBase());
@@ -151,15 +146,5 @@ public class NumberBaseballController {
         numberBaseball.clearGame();
         return "redirect:/bullsandcows";
     }
-
-    // DB내용 페이지를 따로출력 할 경우
-//    @GetMapping("/allresult")
-//    public String index(Model model) {
-//        //  Repo에서 entity리스트로 데이터 가져오기
-//        List<Ranking> rankingEntityList = rankingRepository.findAll();
-//        // model에 등록하기
-//        model.addAttribute("rankinglist", rankingEntityList);
-//        return "index";
-//    }
 
 }

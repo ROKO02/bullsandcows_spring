@@ -34,8 +34,11 @@
     <button formaction="/logoutuser" formmethod="get">로그아웃</button>
 </form>
 <a type="button">로그아웃</a>
-{{#rankinglist}}
-    <p>ID(순서): {{id}} / 유저ID: {{userID}}/ 시도횟수: {{tryCount}}</p>
-{{/rankinglist}}
+{{^finished}}
+    {{#rankingList}}
+        <p>순위: {{rank}} / 유저ID: {{userID}}/ 시도횟수: {{tryCount}}</p>
+    {{/rankingList}}
+{{/finished}}
+
 </body>
 </html>
